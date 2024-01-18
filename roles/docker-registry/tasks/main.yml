@@ -1,0 +1,67 @@
+- name: Create directories for docker registry
+  become: true
+  become_user: root 
+  ansible.builtin.file:
+    path: "/opt/docker-registry/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    recurse: true
+  loop:
+   - auth
+   - certs
+   - registry
+
+- name: Copy htpasswd file
+  become: true
+  become_user: root
+  copy:
+    src: "{{ htpasswd_file }}"
+    dest: /opt/docker-registry/auth/htpasswd
+    owner: root
+    group: root
+    mode: '0400'
+
+- name: Copy tls certificate file
+  become: true
+  become_user: root
+  copy:
+    src: "{{ tls_certificate_file }}"
+    dest: /opt/docker-registry/certs/domain.crt
+    owner: root
+    group: root
+    mode: '0400'
+
+
+- name: Copy tls key file
+  become: true
+  become_user: root
+  copy:
+    src: "{{ tls_key_file }}"
+    dest: /opt/docker-registry/certs/domain.key
+    owner: root
+    group: root
+    mode: '0400'
+
+- name: Create docker registry container
+  become: true
+  become_user: root 
+  docker_container:
+    container_default_behavior: no_defaults
+    name: registry
+    image: registry:2
+    env:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+      REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+      REGISTRY_HTTP_ADDR: 0.0.0.0:443
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+    state: started
+    ports:
+      - '0.0.0.0:443:443'
+    restart_policy: always
+    volumes:
+      - /opt/docker-registry/auth:/auth
+      - /opt/docker-registry/certs:/certs
+      - /opt/docker-registry/registry:/var/lib/registry

@@ -1,0 +1,6 @@
+- name: Install docker registry
+  hosts: all
+  remote_user: ubuntu
+
+  roles:
+    - docker-registry
