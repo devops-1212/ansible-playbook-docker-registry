@@ -1,12 +1,12 @@
-# Anisble playbook docker registry
+# Ansible playbook docker registry
 
 The Ansible playbook installs and configures docker registry with native basic authentication and secures it using TLS.
 
 ## Parameters
 
-* `{{ htpasswd_file }}` - local path of the authentication file
-* `{{ tls_certificate_file }}` - local path of the ssl certificate file
-* `{{ tls_key_file }}` -local path of the ssl key file
+* `htpasswd_file` - local path of the authentication file
+* `tls_certificate_file` - local path of the ssl certificate file
+* `tls_key_file` - local path of the ssl key file
 
 ## Example of an inventory file
 
